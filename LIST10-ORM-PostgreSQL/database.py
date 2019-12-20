@@ -24,8 +24,8 @@ class database:
 
     def write(self, val):
         rows = []
-        if table in val:
-            if val['table'] in ['person', 'enevt', 'person_at_event']:
+        if 'table' in val:
+            if val['table'] in ['person', 'event', 'person_at_event']:
                 if val['table'] == "person":  
                     rows = self.conn.conn.execute( self.person.select() )
                 if val['table'] == 'event':
@@ -33,4 +33,4 @@ class database:
                 if val['table'] == 'person_at_event':
                     rows = self.conn.conn.execute( self.person_at_event.select() )
                 for row in rows: print(row)
-        raise Exception("Argument is not valid! Please call --write '{\"table\" : [ \"person\", \"event\", \"person_at_event\"]}'")
+        else: raise Exception("Argument is not valid! Please call --write '{\"table\" :  \"person\", or \"event\", or \"person_at_event\" }'")

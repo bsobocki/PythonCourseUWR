@@ -19,14 +19,20 @@ class db_manipulator:
             @val is the value we want to add given as python dictionary:
                 {'id':<id>, 'name':<name>, 'email':<email>}
         """
-        if 'id' in val and 'name' in val and 'email' in val:
+        try:
             # create sqlalchemy.sql.expression.Insert object
             clause = self.db.person \
                         .insert() \
                         .values(id=val['id'], name=val['name'], email=val['email'])
         
-            return self._execute(clause)
-        raise Exception("Arguments: " + str(list(val.keys())) + " are not valid or they are insufficient!")
+            result = self.db.conn.conn.execute(clause)
+            
+            print('added person ' + val['name'] + ' with id: ' + str(val['id']))
+            
+            return result
+        
+        except Exception: print("Sorry, you cannot add a new person with this parameters. \nPerson with this id is already exists or you do not give all needed data to add.\nNeeded data to add: [id, name, email]")
+        except psycopg2.errors.UniqueViolation: print("Person with id",val['id'],'is already exists. Please, change event id and add again.')
 
 
     def add_person_at_event(self, val):
@@ -35,14 +41,29 @@ class db_manipulator:
             @val is the value we want to add given as dictionary: 
                 {'person_id':<person_id>, 'event_id':<event_id>} 
         """
-        if 'person_id' in val and 'event_id' in val:
+        try:
             # create sqlalchemy.sql.expression.Insert object
             clause = self.db.person_at_event \
                         .insert() \
                         .values(person_id=val['person_id'], event_id=val['event_id'])
-        
-            return self._execute(clause)
-        raise Exception("Arguments: " + str(list(val.keys())) + " are not valid or they are insufficient!")
+
+            looking_for_person = self.db.person \
+                                        .select() \
+                                        .where(self.db.person.c.id==val['person_id'])
+
+            looking_for_event = self.db.event \
+                                    .select() \
+                                    .where(self.db.event.c.id==val['event_id'])
+
+            result = self.db.conn.conn.execute(clause)
+            person = list(self.db.conn.conn.execute(looking_for_person))
+            event = list(self.db.conn.conn.execute(looking_for_event))
+            
+            print('added person ' + str(person[0][1]) + ' with id: ' + str(val['person_id']) + ' at event ' + str(event[0][1])+ ' with id: ' + str(val['event_id']))
+            
+            return result
+    
+        except Exception as err: print(err,"Sorry, you cannot add this person to the event. \nThere is no person with given 'person_id', there is no event with given 'event_id' or you do not give all needed data to add.\nNeeded data to add: [person_id, event_id]")
 
 
     def add_event(self, val):
@@ -57,10 +78,14 @@ class db_manipulator:
                 clause = self.db.event \
                             .insert() \
                             .values(id=val['id'], title=val['title'], start_time=val['start_time'], end_time=val['end_time'])
-            
-                return self._execute(clause)
-        except psycopg2.errors.
-        raise Exception("Arguments: " + str(list(val.keys())) + " are not valid or they are insufficient!")
+                result = self.db.conn.conn.execute(clause)
+                
+                print('added event ' + val['title'] + ' with id: ' + str(val['id']))
+                
+                return result
+        
+        except Exception: print("Sorry, you cannot add this event. \nThere is an event with the given id or you do not give all needed data to add.\nNeeded data to add: [id, title, start_time, end_time]")
+        except psycopg2.errors.UniqueViolation as err: print("Event with id",val['id'],'is already exists.\n Please, change event id and add again.')
 
 
     def delete_person(self, val):
@@ -88,7 +113,13 @@ class db_manipulator:
                     clause = self.db.person \
                                     .delete() \
                                     .where(self.db.person.c.email==val['email'])
-                return self._execute(clause)
+
+                result = self.db.conn.conn.execute(clause)
+
+                print('from now there is no person with',first_key,': ',val[first_key])
+                
+                return result
+        
         raise Exception("Argument is not valid!") 
 
 
@@ -121,5 +152,11 @@ class db_manipulator:
                     clause = self.db.event \
                                     .delete() \
                                     .where(self.db.event.c.end_time==val['end_time'])
-                return self._execute(clause)
+
+                result = self.db.conn.conn.execute(clause)
+
+                print('from now there is no person with',first_key,': ',val[first_key])
+                
+                return result
+
         raise Exception("Argument is not valid!") 
