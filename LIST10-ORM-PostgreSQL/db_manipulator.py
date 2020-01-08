@@ -13,26 +13,28 @@ class db_manipulator:
         return self.db.conn.conn.execute(clause)
 
 
-    def add_person(self, val):
+    def add_person(self, val_dict):
         """ 
             Adds a new value to the table 'person' 
             @val is the value we want to add given as python dictionary:
                 {'id':<id>, 'name':<name>, 'email':<email>}
         """
         try:
-            # create sqlalchemy.sql.expression.Insert object
-            clause = self.db.person \
-                        .insert() \
-                        .values(id=val['id'], name=val['name'], email=val['email'])
-        
-            result = self.db.conn.conn.execute(clause)
+            if self.db.person is not None:
+                # create sqlalchemy.sql.expression.Insert object
+                clause = self.db.person \
+                            .insert() \
+                            .values(id=val_dict['id'], name=val_dict['name'], email=val_dict['email'])
             
-            print('added person ' + val['name'] + ' with id: ' + str(val['id']))
-            
-            return result
+                result = self.db.conn.conn.execute(clause)
+                
+                print('added person ' + val_dict['name'] + ' with id: ' + str(val_dict['id']))
+                
+                return result
+            else: print("Something gone wrong! Person with parameters",val_dict,"were not added. May you should change parameters?\nNeeded data to add: [id, name, email]")
         
         except Exception: print("Sorry, you cannot add a new person with this parameters. \nPerson with this id is already exists or you do not give all needed data to add.\nNeeded data to add: [id, name, email]")
-        except psycopg2.errors.UniqueViolation: print("Person with id",val['id'],'is already exists. Please, change event id and add again.')
+        except psycopg2.errors.UniqueViolation: print("Person with id",val_dict['id'],'is already exists. Please, change event id and add again.')
 
 
     def add_person_at_event(self, val):
@@ -42,50 +44,54 @@ class db_manipulator:
                 {'person_id':<person_id>, 'event_id':<event_id>} 
         """
         try:
-            # create sqlalchemy.sql.expression.Insert object
-            clause = self.db.person_at_event \
-                        .insert() \
-                        .values(person_id=val['person_id'], event_id=val['event_id'])
+            if self.db.person is not None:
+                # create sqlalchemy.sql.expression.Insert object
+                clause = self.db.person_at_event \
+                            .insert() \
+                            .values(person_id=val['person_id'], event_id=val['event_id'])
 
-            looking_for_person = self.db.person \
+                looking_for_person = self.db.person \
+                                            .select() \
+                                            .where(self.db.person.c.id==val['person_id'])
+
+                looking_for_event = self.db.event \
                                         .select() \
-                                        .where(self.db.person.c.id==val['person_id'])
+                                        .where(self.db.event.c.id==val['event_id'])
 
-            looking_for_event = self.db.event \
-                                    .select() \
-                                    .where(self.db.event.c.id==val['event_id'])
-
-            result = self.db.conn.conn.execute(clause)
-            person = list(self.db.conn.conn.execute(looking_for_person))
-            event = list(self.db.conn.conn.execute(looking_for_event))
-            
-            print('added person ' + str(person[0][1]) + ' with id: ' + str(val['person_id']) + ' at event ' + str(event[0][1])+ ' with id: ' + str(val['event_id']))
-            
-            return result
+                result = self.db.conn.conn.execute(clause)
+                person = list(self.db.conn.conn.execute(looking_for_person))
+                event = list(self.db.conn.conn.execute(looking_for_event))
+                
+                print('added person ' + str(person[0][1]) + ' with id: ' + str(val['person_id']) + ' at event ' + str(event[0][1])+ ' with id: ' + str(val['event_id']))
+                
+                return result
+            else: print("Something gone wrong! Person at event with parameters",val_dict,"were not added. May you should change parameters?\nNeeded data to add: [person_id, event_id]")
     
         except Exception as err: print(err,"Sorry, you cannot add this person to the event. \nThere is no person with given 'person_id', there is no event with given 'event_id' or you do not give all needed data to add.\nNeeded data to add: [person_id, event_id]")
 
 
-    def add_event(self, val):
+    def add_event(self, val_dict):
         """ 
             Adds a new value to the table 'person' 
             @val is the value we want to add given as python dictionary:
                 {'id':<id>, 'title':<title>, 'start_time':<start_time>, 'end_time':<end_time>}
         """
         try:
-            if 'id' in val and 'title' in val and 'start_time' in val and 'end_time' in val:
+            if 'id' in val_dict and 'title' in val_dict and 'start_time' in val_dict and 'end_time' in vval_dictal:
                 # create sqlalchemy.sql.expression.Insert object
                 clause = self.db.event \
                             .insert() \
-                            .values(id=val['id'], title=val['title'], start_time=val['start_time'], end_time=val['end_time'])
+                            .values(id=val_dict['id'], title=val_dict['title'], start_time=val_dict['start_time'], end_time=val_dict['end_time'])
                 result = self.db.conn.conn.execute(clause)
                 
-                print('added event ' + val['title'] + ' with id: ' + str(val['id']))
+                print('added event ' + val_dict['title'] + ' with id: ' + str(val_dict['id']))
                 
                 return result
+            else:
+                print('Given argument:',val_dict,'is not a valid argument to add a new event. You should use argument looks like \'{"id":<numeric>, "title":<string>, "start_time":<timestamp>, "end_time":<timestamp>}\'')
         
         except Exception: print("Sorry, you cannot add this event. \nThere is an event with the given id or you do not give all needed data to add.\nNeeded data to add: [id, title, start_time, end_time]")
-        except psycopg2.errors.UniqueViolation as err: print("Event with id",val['id'],'is already exists.\n Please, change event id and add again.')
+        except psycopg2.errors.UniqueViolation as err: print("Event with id",val['id'],'is already exists.\n Please, change event id and try again.')
 
 
     def delete_person(self, val):
@@ -119,6 +125,8 @@ class db_manipulator:
                 print('from now there is no person with',first_key,': ',val[first_key])
                 
                 return result
+            else: print("There is no person with parameter:",first_key)
+        else: print("There is nothing to delete.")
         
         raise Exception("Argument is not valid!") 
 
@@ -135,28 +143,33 @@ class db_manipulator:
             first_key = list(val.keys())[0]
             # valid keys: 'id', 'name', 'email'
             if first_key in ['id', 'title', 'start_time', 'end_time']:
-                # check first key
-                if first_key=='id':
-                    clause = self.db.event \
-                                    .delete() \
-                                    .where(self.db.event.c.id==val['id'])
-                elif first_key=='title':
-                    clause = self.db.event \
-                                    .delete() \
-                                    .where(self.db.event.c.title==val['title'])
-                elif first_key=='start_time':
-                    clause = self.db.event \
-                                    .delete() \
-                                    .where(self.db.event.c.start_time==val['start_time'])
-                elif first_key=='end_time':
-                    clause = self.db.event \
-                                    .delete() \
-                                    .where(self.db.event.c.end_time==val['end_time'])
+                if self.db.event is not None:
+                    # check first key
+                    if first_key=='id':
+                        clause = self.db.event \
+                                        .delete() \
+                                        .where(self.db.event.c.id==val['id'])
+                    elif first_key=='title':
+                        clause = self.db.event \
+                                        .delete() \
+                                        .where(self.db.event.c.title==val['title'])
+                    elif first_key=='start_time':
+                        clause = self.db.event \
+                                        .delete() \
+                                        .where(self.db.event.c.start_time==val['start_time'])
+                    elif first_key=='end_time':
+                        clause = self.db.event \
+                                        .delete() \
+                                        .where(self.db.event.c.end_time==val['end_time'])
 
-                result = self.db.conn.conn.execute(clause)
+                    result = self.db.conn.conn.execute(clause)
 
-                print('from now there is no person with',first_key,': ',val[first_key])
-                
-                return result
+                    print('from now there is no person with',first_key,': ',val[first_key])
+                    
+                    return result
+                else: print("Something gone wrong! Please meke sure that the given parameters are correct.")
+            else: print("There is no event with parameter:",first_key)
+        else: print("There is nothing to delete.")
+            
 
-        raise Exception("Argument is not valid!") 
+        raise Exception("There is no event with given parameters.") 

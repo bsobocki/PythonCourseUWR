@@ -22,21 +22,15 @@ class database:
         if 'person_at_event' in tables: self.person_at_event = tables['person_at_event'] 
         
 
-    def write(self, val):
+    def get_rows_from_table(self, val_dict):
         rows = []
-        if 'table' in val:
-            if val['table'] in ['person', 'event', 'person_at_event']:
-                if val['table'] == "person":  
+        if 'table' in val_dict:
+            if val_dict['table'] in ['person', 'event', 'person_at_event']:
+                if val_dict['table'] == "person":  
                     rows = self.conn.conn.execute( self.person.select() )
-                if val['table'] == 'event':
+                if val_dict['table'] == 'event':
                     rows = self.conn.conn.execute( self.event.select() )
-                if val['table'] == 'person_at_event':
+                if val_dict['table'] == 'person_at_event':
                     rows = self.conn.conn.execute( self.person_at_event.select() )
-
-                if len(rows) > 0: 
-                    for row in rows: 
-                        print(row)
-
-                else: print("There is nothing to print!")
-                
+                return rows
         else: raise Exception("Argument is not valid! Please call --write '{\"table\" :  \"person\", or \"event\", or \"person_at_event\" }'")
