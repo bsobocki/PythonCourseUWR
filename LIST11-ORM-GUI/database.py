@@ -49,14 +49,15 @@ class DataBase:
         except (Exception) as err: return str(err)
     
 
-    def get_rows_from_table(self, str_val):
-        rows = []
-        if str_val in ['person', 'event', 'person_at_event']:
-            if str_val == "person":  
-                rows = self.conn.conn.execute( self.person.select() )
-            if str_val == 'event':
-                rows = self.conn.conn.execute( self.event.select() )
-            if str_val == 'person_at_event':
-                rows = self.conn.conn.execute( self.person_at_event.select() )
-            return rows
-        else: raise Exception("Argument is not valid! Please call --write '{\"table\" :  \"person\", or \"event\", or \"person_at_event\" }'")
+    def get_persons(self):
+        return self.conn.conn.execute( self.person.select() )
+
+
+    def get_events(self):
+        return self.conn.conn.execute( self.event.select() )
+
+    
+    def get_persons_at_events(self):
+        join = self.person_at_event.join( self.event, self.event.c.id == self.person_at_event.c.event_id )
+        query = join.join(self.person, self.person.c.id == join.c.person_id)
+        print(self.conn.conn.execute( query ))

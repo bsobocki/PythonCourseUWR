@@ -4,13 +4,18 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot
 
 from db_manipulator import DataBase_Manipulator
+from database_manipulator_add import Database_Manipulator_Add
+from database_manipulator_delete import DataBase_Manipulator_Delete
 from database import DataBase
 from input_person_data_widget import Input_Person_Data_Widget
 
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.db_manip = DataBase_Manipulator( DataBase() )
+        database = DataBase()
+        self._db_manip = DataBase_Manipulator( database )
+        self._db_manip_add = Database_Manipulator_Add( database )
+        self._db_manip_del = DataBase_Manipulator_Delete( database )
         self.initUI()
 
 
@@ -48,13 +53,12 @@ class App(QMainWindow):
         
 
     def _action_add_person(self):
-        self._person_data_widget = Input_Person_Data_Widget(self.db_manip)
+        self._person_data_widget = Input_Person_Data_Widget(self._db_manip_add)
 
 
     def _action_create_database_content(self):
         message = self.db_manip.create_database_content()
         QMessageBox.about(self, "Create DataBase Content", message)
-
 
 
 if __name__ == '__main__':
