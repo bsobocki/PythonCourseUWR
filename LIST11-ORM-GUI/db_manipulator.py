@@ -14,11 +14,11 @@ class DataBase_Manipulator:
 
 
     def _check_name(self, name):
-        return bool(re.match("r[A-Z,a-z][0-9]"), name)
+        return bool(re.match("r[A-Z,a-z,0-9]+", name))
 
 
     def _check_email(self, email):
-        return bool(re.match("r[A-Z,a-z]+[0-9]+@[A-Z,a-z]+\.[A-Z,a-z]+"), name)
+        return bool(re.match("r[A-Z,a-z,0-9]+@[A-Z,a-z,0-9]+\.[A-Z,a-z]+", email))
 
 
     def _execute(self, clause):
@@ -38,8 +38,11 @@ class DataBase_Manipulator:
         """
         try:
             self.person_id += 1
-            if self.db.person is not None and self._check_name(val_dict["name"]) and self._check_email(val_dict["email"]):
-                # create sqlalchemy.sql.expression.Insert object
+
+            if self.db.person is not None:
+                if not self._check_name(val_dict["name"]) : return "Wrong name! \nPlease enter a name contains only big and low letters and numbers."
+                if not self._check_email(val_dict["email"]): return "Wrong email! \nPlease enter an email [letters and numbers] @ [letters and numbers] . [letters]"
+                
                 clause = self.db.person \
                             .insert() \
                             .values(id=self.person_id, name=val_dict['name'], email=val_dict['email'])
@@ -52,10 +55,12 @@ class DataBase_Manipulator:
                         Person with parameters" + str(val_dict) + "were not added. \n\
                         May you should change parameters?"
 
-        except psycopg2.errors.UniqueViolation: 
+        except psycopg2.errors.UniqueViolation as er: 
+            return str(er)
             return "Person with id" + str(self.person_id) + 'is already exists.\n \
                     Please, change event id and add again.'
         except Exception as e: 
+            return str(e)
             return "Sorry, you cannot add a new person with this parameters. \nPerson with this id is already exists or you do not give all needed data to add.\n"
 
 
