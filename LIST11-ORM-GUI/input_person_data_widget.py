@@ -3,19 +3,14 @@ from PyQt5.QtWidgets import QPushButton, QWidget, QLineEdit, QLabel, QMessageBox
 
 class Input_Person_Data_Widget(QWidget):
 
-    def __init__(self, type, database_manipulator):
+    def __init__(self, database_manipulator):
         super().__init__()
-
-        if type == "person_data" : self._init_person_data_UI()
-        elif type == "event_data"  : self._init_event_data_UI()   
-        else: raise Exception("Incorrect type of Input Widget!")
-
         self._db_manip = database_manipulator
-
+        self._init_UI() 
         self.show()
 
 
-    def _init_person_data_UI(self):
+    def _init_UI(self):
         self._label_title = self._create_label("Add person to the Calendar DataBase!", 10, x=50)
 
         y = 35

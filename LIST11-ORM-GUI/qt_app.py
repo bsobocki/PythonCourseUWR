@@ -48,12 +48,13 @@ class App(QMainWindow):
         
 
     def _action_add_person(self):
-        self._person_data_widget = Input_Person_Data_Widget("person_data", self.db_manip)
+        self._person_data_widget = Input_Person_Data_Widget(self.db_manip)
 
 
     def _action_create_database_content(self):
         message = self.db_manip.create_database_content()
         QMessageBox.about(self, "Create DataBase Content", message)
+
 
 
 if __name__ == '__main__':
