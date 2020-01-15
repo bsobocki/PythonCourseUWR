@@ -19,16 +19,18 @@ class App(QMainWindow):
         self.top = 180
         self.width = 640
         self.height = 480
+
+        # add buttons
         self._button_add_person = self._create_button(
             self._action_add_person, 
             name='Add Person', 
             tooltip='You can add a new person to the database!'
         )
         self._button_init_db = self._create_button(
-            self._create_database,
+            self._action_create_database_content,
             x=200,
             name="Create DataBase",
-            tooltip="You can create DataBase if it doesn't exists!"
+            tooltip="You can create the DataBase content if it doesn't exists!"
         )
        
         self.setWindowTitle('Calendar - PyQt5')
@@ -49,8 +51,9 @@ class App(QMainWindow):
         self._person_data_widget = Input_Person_Data_Widget("person_data", self.db_manip)
 
 
-    def _create_database(self):
-        QMessageBox.about(self, "Message", str(self.db_manip.create_database()))
+    def _action_create_database_content(self):
+        message = self.db_manip.create_database_content()
+        QMessageBox.about(self, "Create DataBase Content", message)
 
 
 if __name__ == '__main__':

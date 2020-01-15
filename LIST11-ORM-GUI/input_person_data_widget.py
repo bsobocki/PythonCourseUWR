@@ -47,7 +47,7 @@ class Input_Person_Data_Widget(QWidget):
             "name": self._textbox_name.text(),
             "email": self._textbox_email.text()
         })
-        QMessageBox.about(self, "Message", str(result))
+        QMessageBox.about(self, "Adding Person To The Database", str(result))
 
 
     def _create_textbox(self, y, x=50, width=250, height=20):

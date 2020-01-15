@@ -17,7 +17,7 @@ class DataBase_Manipulator:
         return self.db.conn.conn.execute(clause)
 
 
-    def create_database(self):
+    def create_database_content(self):
         return self.db.create_tables()
 
 
