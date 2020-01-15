@@ -1,11 +1,24 @@
 import database
 import psycopg2.errors
+from sqlalchemy.sql.expression import func 
+from sqlalchemy.orm.session import Session
+import re
 
-class db_manipulator:
-    db = None
+class DataBase_Manipulator:
+    db = None,
 
     def __init__(self, database):
         self.db = database
+        self.person_id = Session().query(func.max(self.db.person.c.id)).scalar() 
+        self.event_id = Session().query(func.max(self.db.event.c.id)).scalar()
+
+
+    def _check_name(self, name):
+        return bool(re.match("r[A-Z,a-z][0-9]"), name)
+
+
+    def _check_email(self, email):
+        return bool(re.match("r[A-Z,a-z]+[0-9]+@[A-Z,a-z]+\.[A-Z,a-z]+"), name)
 
 
     def _execute(self, clause):
@@ -13,28 +26,37 @@ class db_manipulator:
         return self.db.conn.conn.execute(clause)
 
 
+    def create_database(self):
+        return self.db.create_tables()
+
+
     def add_person(self, val_dict):
         """ 
             Adds a new value to the table 'person' 
             @val is the value we want to add given as python dictionary:
-                {'id':<id>, 'name':<name>, 'email':<email>}
+                {'name':<name>, 'email':<email>}
         """
         try:
-            if self.db.person is not None:
+            self.person_id += 1
+            if self.db.person is not None and self._check_name(val_dict["name"]) and self._check_email(val_dict["email"]):
                 # create sqlalchemy.sql.expression.Insert object
                 clause = self.db.person \
                             .insert() \
-                            .values(id=val_dict['id'], name=val_dict['name'], email=val_dict['email'])
+                            .values(id=self.person_id, name=val_dict['name'], email=val_dict['email'])
             
                 result = self.db.conn.conn.execute(clause)
                 
-                print('added person ' + val_dict['name'] + ' with id: ' + str(val_dict['id']))
-                
-                return result
-            else: print("Something gone wrong! Person with parameters",val_dict,"were not added. May you should change parameters?\nNeeded data to add: [id, name, email]")
-        
-        except Exception: print("Sorry, you cannot add a new person with this parameters. \nPerson with this id is already exists or you do not give all needed data to add.\nNeeded data to add: [id, name, email]")
-        except psycopg2.errors.UniqueViolation: print("Person with id",val_dict['id'],'is already exists. Please, change event id and add again.')
+                return 'Successfully added person ' + str(val_dict['name']) + ' with id: ' + str(self.person_id) + "  "
+            else: 
+                return "Something gone wrong!\n\
+                        Person with parameters" + str(val_dict) + "were not added. \n\
+                        May you should change parameters?"
+
+        except psycopg2.errors.UniqueViolation: 
+            return "Person with id" + str(self.person_id) + 'is already exists.\n \
+                    Please, change event id and add again.'
+        except Exception as e: 
+            return "Sorry, you cannot add a new person with this parameters. \nPerson with this id is already exists or you do not give all needed data to add.\n"
 
 
     def add_person_at_event(self, val):
@@ -62,36 +84,42 @@ class db_manipulator:
                 person = list(self.db.conn.conn.execute(looking_for_person))
                 event = list(self.db.conn.conn.execute(looking_for_event))
                 
-                print('added person ' + str(person[0][1]) + ' with id: ' + str(val['person_id']) + ' at event ' + str(event[0][1])+ ' with id: ' + str(val['event_id']))
+                return 'added person ' + str(person[0][1]) + ' with id: ' + str(val['person_id']) + ' at event ' + str(event[0][1])+ ' with id: ' + str(val['event_id'])
                 
-                return result
-            else: print("Something gone wrong! Person at event with parameters",val_dict,"were not added. May you should change parameters?\nNeeded data to add: [person_id, event_id]")
+            else: 
+                return "Something gone wrong! \n \
+                        Person at event with parameters" + str(val_dict) + "were not added.\n \
+                        May you should change parameters?\n\
+                        Needed data to add: [person_id, event_id]"
     
-        except Exception as err: print(err,"Sorry, you cannot add this person to the event. \nThere is no person with given 'person_id', there is no event with given 'event_id' or you do not give all needed data to add.\nNeeded data to add: [person_id, event_id]")
+        except Exception as err: 
+            return "Sorry, you cannot add this person to the event. \n\
+                    There is no person with given 'person_id', there is no event with given 'event_id' or you do not give all needed data to add."
 
 
     def add_event(self, val_dict):
         """ 
             Adds a new value to the table 'person' 
             @val is the value we want to add given as python dictionary:
-                {'id':<id>, 'title':<title>, 'start_time':<start_time>, 'end_time':<end_time>}
+                {'title':<title>, 'start_time':<start_time>, 'end_time':<end_time>}
         """
         try:
+            self.event_id += 1
             if 'id' in val_dict and 'title' in val_dict and 'start_time' in val_dict and 'end_time' in val_dict:
                 # create sqlalchemy.sql.expression.Insert object
                 clause = self.db.event \
                             .insert() \
-                            .values(id=val_dict['id'], title=val_dict['title'], start_time=val_dict['start_time'], end_time=val_dict['end_time'])
+                            .values(id=self.event_id, title=val_dict['title'], start_time=val_dict['start_time'], end_time=val_dict['end_time'])
                 result = self.db.conn.conn.execute(clause)
                 
-                print('added event ' + val_dict['title'] + ' with id: ' + str(val_dict['id']))
-                
-                return result
+                return 'added event ' + val_dict['title'] + ' with id: ' + str(self.event_id)
             else:
-                print('Given argument:',val_dict,'is not a valid argument to add a new event. You should use argument looks like \'{"id":<numeric>, "title":<string>, "start_time":<timestamp>, "end_time":<timestamp>}\'')
-        
-        except Exception as e: print("Sorry, you cannot add this event. \nThere is an event with the given id or you do not give all needed data to add.\nNeeded data to add: [id, title, start_time, end_time] ")
-        except psycopg2.errors.UniqueViolation as err: print("Event with id",val['id'],'is already exists.\n Please, change event id and try again.')
+                return 'Given argument:' + str(val_dict) + 'is not a valid argument to add a new event.'
+        except psycopg2.errors.UniqueViolation as err: 
+            return "Event with id" + str(self.event_id) + 'is already exists.\n Please, change event id and try again.'
+        except Exception as e: 
+            return "Sorry, you cannot add this event. \nThere is an event with the given id or you do not give all needed data to add.\nNeeded data to add: [title, start_time, end_time] "
+
 
 
     def delete_person(self, val):

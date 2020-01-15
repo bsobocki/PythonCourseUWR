@@ -16,7 +16,6 @@ def interpreter(command, val):
 
         # create a new database manipulator
         db_manip = db_manipulator(db)
-
         # check command
         commands_actions = \
         {

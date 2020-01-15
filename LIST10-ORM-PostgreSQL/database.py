@@ -27,16 +27,21 @@ class database:
         if 'table' in val:
             if val['table'] in ['person', 'event', 'person_at_event']:
                 if val['table'] == "person":  
-                    rows = self.conn.conn.execute( self.person.select() )
+                    rows = list(self.conn.conn.execute( self.person.select() ))
+                    print( "There are {} persons. ".format(len(rows)) )
+                    for row in rows: print( "{}, with email: {}".format(row[1], row[2]))
+
                 if val['table'] == 'event':
-                    rows = self.conn.conn.execute( self.event.select() )
+                    rows = list(self.conn.conn.execute( self.event.select() ))
+                    print( "There are {} events. ".format(len(rows)) )
+                    for row in rows: print( "{}, starts at : {} and ends at {}".format(row[1], row[2], row[3]))
+
                 if val['table'] == 'person_at_event':
-                    rows = self.conn.conn.execute( self.person_at_event.select() )
+                    persons_persons_at_events = self.person.join(self.person_at_event, self.person_at_event.c.person_id == self.person.c.id) 
+                    persons_at_events = persons_persons_at_events.join(self.event, self.person_at_event.c.event_id == self.event.c.id)
+                    rows = list( self.conn.conn.execute( select([self.person, self.event]).select_from(persons_at_events) ) )
+                    for row in rows: print ("{} (id: {}) signed up for the event with title \"{}\" (id: {}) ".format(row[1], int(row[0]), row[4], int(row[3])))
 
-                if len(rows) > 0: 
-                    for row in rows: 
-                        print(row)
+                return True
 
-                else: print("There is nothing to print!")
-                
-        else: raise Exception("Argument is not valid! Please call --write '{\"table\" :  \"person\", or \"event\", or \"person_at_event\" }'")
+        print("Argument is not valid! Please call --write '{\"table\" :  \"person\", or \"event\", or \"person_at_event\" }'")
