@@ -6,6 +6,7 @@ from database_manipulator_add import Database_Manipulator_Add
 from database_manipulator_delete import DataBase_Manipulator_Delete
 from database import DataBase
 from input_person_data_widget import Input_Person_Data_Widget
+from input_event_data_widget import Input_Event_Data_Widget
 
 
 class App(QMainWindow):

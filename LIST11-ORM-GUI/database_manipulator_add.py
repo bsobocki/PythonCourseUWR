@@ -50,11 +50,11 @@ class Database_Manipulator_Add(DataBase_Manipulator):
 
 
     def _check_name(self, name):
-        return bool(re.match(r"[A-Z,a-z]+[A-Z,a-z,0-9]*", name))
+        return bool(re.match(r"[A-Z,a-z]+[A-Z,a-z,0-9,\.]*", name))
 
 
     def _check_email(self, email):
-        return bool(re.match(r"[A-Z,a-z]+[A-Z,a-z,0-9]*@[A-Z,a-z]+[A-Z,a-z,0-9]*\.[A-Z,a-z]+", email))
+        return bool(re.match(r"[A-Z,a-z]+[A-Z,a-z,0-9,\.]*@[A-Z,a-z]+[A-Z,a-z,0-9,\.]*\.[A-Z,a-z]+", email))
 
 
     def _get_max_person_id(self):
