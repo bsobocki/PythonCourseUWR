@@ -1,13 +1,12 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QMessageBox
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import pyqtSlot
 
 from db_manipulator import DataBase_Manipulator
 from database_manipulator_add import Database_Manipulator_Add
 from database_manipulator_delete import DataBase_Manipulator_Delete
 from database import DataBase
 from input_person_data_widget import Input_Person_Data_Widget
+
 
 class App(QMainWindow):
     def __init__(self):
@@ -29,7 +28,13 @@ class App(QMainWindow):
         self._button_add_person = self._create_button(
             self._action_add_person, 
             name='Add Person', 
-            tooltip='You can add a new person to the database!'
+            tooltip='You can add a new person to the DataBase!'
+        )
+        self._button_add_event = self._create_button(
+            self._action_add_event,
+            x=300,
+            name="Add Event",
+            tooltip="You can add a new Person to the Database!"
         )
         self._button_init_db = self._create_button(
             self._action_create_database_content,
@@ -50,10 +55,14 @@ class App(QMainWindow):
         button.move(x, y)
         button.clicked.connect(action)
         return button
-        
+
 
     def _action_add_person(self):
         self._person_data_widget = Input_Person_Data_Widget(self._db_manip_add)
+        
+
+    def _action_add_event(self):
+        self._event_data_widget = Input_Event_Data_Widget(self._db_manip_add)
 
 
     def _action_create_database_content(self):

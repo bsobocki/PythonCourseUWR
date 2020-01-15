@@ -2,9 +2,8 @@ from PyQt5.QtWidgets import QPushButton, QWidget, QLineEdit, QLabel, QMessageBox
 
 
 class Input_Person_Data_Widget(QWidget):
-
     def __init__(self, database_manipulator_add):
-        super().__init__()
+        super().__init__(database_manipulator_add)
         self._db_manip = database_manipulator_add
         self._init_UI() 
         self.show()
