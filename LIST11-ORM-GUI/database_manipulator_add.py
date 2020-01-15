@@ -65,7 +65,7 @@ class Database_Manipulator_Add(DataBase_Manipulator):
 
     def _get_max_event_id(self):
         max_event_id = Session().query(func.max(self.db.event.c.id)).scalar()
-        max_event_id = max_event_id+1 if max_event_id is None else 0
+        max_event_id = max_event_id+1 if not max_event_id is None else 0
         return max_event_id
 
 
@@ -113,8 +113,7 @@ class Database_Manipulator_Add(DataBase_Manipulator):
                 {'title':<title>, 'start_time':<start_time>, 'end_time':<end_time>}
         """
         try:
-            if 'id' in val_dict and 'title' in val_dict and 'start_time' in val_dict and 'end_time' in val_dict:
-
+            if 'title' in val_dict and 'start_time' in val_dict and 'end_time' in val_dict:
                 event_id = self._get_max_event_id()
 
                 clause = self.db.event \
@@ -123,10 +122,10 @@ class Database_Manipulator_Add(DataBase_Manipulator):
                 
                 result = self.db.conn.conn.execute(clause)
                 
-                return 'added event ' + val_dict['title'] + '   '
+                return 'Successfully added event ' + val_dict['title'] + '.   '
             else:
-                return 'Given argument:' + str(val_dict) + 'is not a valid argument to add a new event.'
+                return 'Given arguments:' + str(val_dict) + 'are not a valid arguments to add a new event.'
         except psycopg2.errors.UniqueViolation as err: 
             return "Event with id" + str(self.event_id) + 'is already exists.\n Please, change event id and try again.'
         except Exception as e: 
-            return "Sorry, you cannot add this event. \nThere is an event with the given id or you do not give all needed data to add.\nNeeded data to add: [title, start_time, end_time] "
+            return "Sorry, you cannot add this event. \n Problem: " + str(e)

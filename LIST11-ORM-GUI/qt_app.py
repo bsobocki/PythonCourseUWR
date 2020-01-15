@@ -7,6 +7,7 @@ from database_manipulator_delete import DataBase_Manipulator_Delete
 from database import DataBase
 from input_person_data_widget import Input_Person_Data_Widget
 from input_event_data_widget import Input_Event_Data_Widget
+from button import Button
 
 
 class App(QMainWindow):
@@ -26,36 +27,35 @@ class App(QMainWindow):
         self.height = 480
 
         # add buttons
-        self._button_add_person = self._create_button(
-            self._action_add_person, 
-            name='Add Person', 
-            tooltip='You can add a new person to the DataBase!'
+        self._button_add_person = Button(
+            x=100, 
+            y=200, 
+            text='Add Person', 
+            tooltip='You can add a new person to the DataBase!', 
+            on_click=self._action_add_person, 
+            parent=self
         )
-        self._button_add_event = self._create_button(
-            self._action_add_event,
-            x=300,
-            name="Add Event",
-            tooltip="You can add a new Person to the Database!"
+        self._button_add_event = Button(
+            x=220,
+            y=200,
+            text="Add Event",
+            tooltip="You can add a new Person to the Database!",
+            on_click=self._action_add_event,
+            parent=self
         )
-        self._button_init_db = self._create_button(
-            self._action_create_database_content,
-            x=200,
-            name="Create DataBase",
-            tooltip="You can create the DataBase content if it doesn't exists!"
+        self._button_init_db = Button(
+            x=340,
+            y=200,
+            text="Create DataBase",
+            tooltip="You can create the DataBase content if it doesn't exists!",
+            on_click=self._action_create_database_content,
+            parent=self
         )
        
         self.setWindowTitle('Calendar - PyQt5')
         self.setGeometry(self.left, self.top, self.width, self.height)
 
         self.show()
-
-
-    def _create_button(self, action, name='', x=100, y=200, tooltip=''):
-        button = QPushButton(name, self)
-        button.setToolTip(tooltip)
-        button.move(x, y)
-        button.clicked.connect(action)
-        return button
 
 
     def _action_add_person(self):
@@ -69,6 +69,18 @@ class App(QMainWindow):
     def _action_create_database_content(self):
         message = self.db_manip.create_database_content()
         QMessageBox.about(self, "Create DataBase Content", message)
+
+    def _action_add_person_at_event(self):
+        pass
+
+    def _action_delete_persons(self):
+        pass
+
+    def _action_delete_events(self):
+        pass
+
+    def _action_remove_persons_from_event(self):
+        pass
 
 
 if __name__ == '__main__':
