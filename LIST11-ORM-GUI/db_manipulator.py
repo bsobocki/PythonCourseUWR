@@ -4,21 +4,12 @@ from sqlalchemy.sql.expression import func
 from sqlalchemy.orm.session import Session
 import re
 
+
 class DataBase_Manipulator:
     db = None,
 
     def __init__(self, database):
         self.db = database
-        self.person_id = Session().query(func.max(self.db.person.c.id)).scalar() 
-        self.event_id = Session().query(func.max(self.db.event.c.id)).scalar()
-
-
-    def _check_name(self, name):
-        return bool(re.match("r[A-Z,a-z,0-9]+", name))
-
-
-    def _check_email(self, email):
-        return bool(re.match("r[A-Z,a-z,0-9]+@[A-Z,a-z,0-9]+\.[A-Z,a-z]+", email))
 
 
     def _execute(self, clause):
@@ -37,19 +28,23 @@ class DataBase_Manipulator:
                 {'name':<name>, 'email':<email>}
         """
         try:
-            self.person_id += 1
-
             if self.db.person is not None:
-                if not self._check_name(val_dict["name"]) : return "Wrong name! \nPlease enter a name contains only big and low letters and numbers."
-                if not self._check_email(val_dict["email"]): return "Wrong email! \nPlease enter an email [letters and numbers] @ [letters and numbers] . [letters]"
+                if not self._check_name(val_dict["name"]) : 
+                    return  "Wrong name! \n" + \
+                            "The correct name contains only big and low letters and numbers."
+                if not self._check_email(val_dict["email"]): 
+                    return "Wrong email!\n\n" + \
+                           "Email Template:\n[letters and numbers] @ [letters and numbers] . [letters]"
                 
+                person_id = self._get_max_person_id()
+
                 clause = self.db.person \
-                            .insert() \
-                            .values(id=self.person_id, name=val_dict['name'], email=val_dict['email'])
+                             .insert() \
+                             .values(id=person_id, name=val_dict['name'], email=val_dict['email'])
             
                 result = self.db.conn.conn.execute(clause)
-                
-                return 'Successfully added person ' + str(val_dict['name']) + ' with id: ' + str(self.person_id) + "  "
+                    
+                return 'Successfully added person ' + str(val_dict['name']) + "  "
             else: 
                 return "Something gone wrong!\n\
                         Person with parameters" + str(val_dict) + "were not added. \n\
@@ -62,6 +57,26 @@ class DataBase_Manipulator:
         except Exception as e: 
             return str(e)
             return "Sorry, you cannot add a new person with this parameters. \nPerson with this id is already exists or you do not give all needed data to add.\n"
+
+
+    def _check_name(self, name):
+        return bool(re.match(r"[A-Z,a-z]+[A-Z,a-z,0-9]*", name))
+
+
+    def _check_email(self, email):
+        return bool(re.match(r"[A-Z,a-z]+[A-Z,a-z,0-9]*@[A-Z,a-z]+[A-Z,a-z,0-9]*\.[A-Z,a-z]+", email))
+
+
+    def _get_max_person_id(self):
+        max_person_id = Session().query(func.max(self.db.person.c.id)).scalar()
+        if max_person_id is None: max_person_id = 0
+        return max_person_id
+
+
+    def _get_max_event_id(self):
+        max_event_id = Session().query(func.max(self.db.event.c.id)).scalar()
+        if max_event_id is None: max_event_id = 0
+        return max_event_id
 
 
     def add_person_at_event(self, val):
@@ -89,17 +104,16 @@ class DataBase_Manipulator:
                 person = list(self.db.conn.conn.execute(looking_for_person))
                 event = list(self.db.conn.conn.execute(looking_for_event))
                 
-                return 'added person ' + str(person[0][1]) + ' with id: ' + str(val['person_id']) + ' at event ' + str(event[0][1])+ ' with id: ' + str(val['event_id'])
+                return 'Successfully added person ' + str(person[0][1]) + ' with id: ' + str(val['person_id']) + ' at event ' + str(event[0][1])+ ' with id: ' + str(val['event_id'])
                 
             else: 
-                return "Something gone wrong! \n \
-                        Person at event with parameters" + str(val_dict) + "were not added.\n \
-                        May you should change parameters?\n\
-                        Needed data to add: [person_id, event_id]"
+                return "Something gone wrong! \n" +  \
+                        "Person at event with parameters" + str(val_dict) + "were not added.\n" + \
+                        "May you should change parameters?\n"
     
         except Exception as err: 
-            return "Sorry, you cannot add this person to the event. \n\
-                    There is no person with given 'person_id', there is no event with given 'event_id' or you do not give all needed data to add."
+            return "Sorry, you cannot add this person to the event. \n" + \
+                    "There is no person with given 'person_id', there is no event with given 'event_id' or you do not give all needed data to add."
 
 
     def add_event(self, val_dict):
@@ -109,15 +123,17 @@ class DataBase_Manipulator:
                 {'title':<title>, 'start_time':<start_time>, 'end_time':<end_time>}
         """
         try:
-            self.event_id += 1
             if 'id' in val_dict and 'title' in val_dict and 'start_time' in val_dict and 'end_time' in val_dict:
-                # create sqlalchemy.sql.expression.Insert object
+
+                event_id = self._get_max_event_id()
+
                 clause = self.db.event \
-                            .insert() \
-                            .values(id=self.event_id, title=val_dict['title'], start_time=val_dict['start_time'], end_time=val_dict['end_time'])
+                             .insert() \
+                             .values(id=event_id, title=val_dict['title'], start_time=val_dict['start_time'], end_time=val_dict['end_time'])
+                
                 result = self.db.conn.conn.execute(clause)
                 
-                return 'added event ' + val_dict['title'] + ' with id: ' + str(self.event_id)
+                return 'added event ' + val_dict['title'] + '   '
             else:
                 return 'Given argument:' + str(val_dict) + 'is not a valid argument to add a new event.'
         except psycopg2.errors.UniqueViolation as err: 
