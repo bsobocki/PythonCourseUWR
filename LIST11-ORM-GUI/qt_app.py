@@ -10,6 +10,7 @@ from input_event_data_widget import Input_Event_Data_Widget
 from button import Button
 from table import Table
 from menu_bar import Menu_Bar
+from output_data_widget import Output_Data_Widget
 
 
 class App(QMainWindow):
@@ -25,14 +26,14 @@ class App(QMainWindow):
     def _init_UI(self):
         self.left = 300
         self.top = 180
-        self.width = 750
-        self.height = 480
+        self.width = 853
+        self.height = 310
         self._up_margin = 30
         self._left_margin = 10
 
 
         # add Menu Bar
-        self._menu_bar = Menu_Bar(["File", "Edit"], self)
+        self._menu_bar = Menu_Bar(["File", "Edit", "About"], self)
         # File
         self._menu_bar.add_separator_to_menu("File")
         self._menu_bar.add_menu_button("File", "Create DataBase Content", "Create the content of the DataBase", self._action_create_database_content)
@@ -45,34 +46,11 @@ class App(QMainWindow):
         self._menu_bar.add_separator_to_menu("Edit")
         self._menu_bar.add_menu_button("Edit", "Delete Persons", "Delete selected persons from the table.", self._action_delete_persons)
         self._menu_bar.add_menu_button("Edit", "Delete Events", "Delete selected events from the table.", self._action_delete_events)
+        # About
+        self._menu_bar.add_separator_to_menu("About")
+        #self._menu_bar.add_menu_button("About", "Program", "Informations about the program.", self._show_info_program)
+        #self._menu_bar.add_menu_button("About", "Author", "Informations about the program author.", self._show_info_author)
         
-        # add buttons
-        self._button_init_db = Button(
-            x=340,
-            y=200,
-            text="Create DataBase",
-            tooltip="You can create the DataBase content if it doesn't exists!",
-            on_click=self._action_create_database_content,
-            parent=self
-        )
-        self._button_add_person_at_event = Button(
-            x=self._left_margin,
-            y=350,
-            width=150,
-            text="Add For Events",
-            tooltip="Sign up the Persons for the Event.",
-            on_click=self._action_add_person_at_event,
-            parent=self
-        )
-        self._button_remove_person_at_event = Button(
-            x=self._left_margin + 185,
-            y=350,
-            width=150,
-            text="Remove From Events",
-            tooltip="Remove Persons from Events.",
-            on_click=self._action_remove_persons_from_events,
-            parent=self
-        )
 
         # PERSONS
         # add buttons
@@ -93,23 +71,24 @@ class App(QMainWindow):
             on_click=self._action_add_person, 
             parent=self
         )
+        # add table
+        table_x = self._left_margin
+        table_y = self._up_margin + self._button_load_persons.height()
+        self._table_persons = Table(x=table_x, y=table_y, width=330, parent=self)
         self._delete_persons = Button(
-            x=500,
-            y=300,
+            x=self._table_persons.x() + self._table_persons.width() - 119,
+            y=self._table_persons.y() + self._table_persons.height() + 10,
             text="Delete Persons",
             tooltip="Delete persons selected on the table.",
             on_click=self._action_delete_persons,
             parent=self
         )
-        # add table
-        table_x = self._left_margin
-        table_y = self._up_margin + self._button_load_persons.height()
-        self._table_persons = Table(x=table_x, y=table_y, width=330, parent=self)
+
 
         # EVENTS
         # add buttons
         self._button_load_events = Button(
-            x=self._table_persons.x() + self._table_persons.width() + self._left_margin,
+            x=self._table_persons.x() + self._table_persons.width() + 170,
             y=self._up_margin,
             text="Load Events",
             tooltip="Load persons to the table.",
@@ -126,12 +105,51 @@ class App(QMainWindow):
             parent=self
         )
         # add table
-        table_x = self._button_load_events.x()
+        table_x = self._button_load_events.x() 
         table_y = self._up_margin + self._button_load_persons.height()
-        self._table_events = Table(x=table_x, y=table_y, width=390, parent=self)
+        self._table_events = Table(x=table_x, y=table_y, width=330, parent=self)
+
+        self._delete_events = Button(
+            x=self._table_events.x() + self._table_events.width() - 119,
+            y=self._table_events.y() + self._table_events.height() + 10,
+            text="Delete Events",
+            tooltip="Delete events selected on the table.",
+            on_click=self._action_delete_events,
+            parent=self
+        )
+
+
+        # OTHER
+        # add buttons
+        #self._button_init_db = Button(
+        #    x=10,
+        #    y=self._table_persons.y() + self._table_persons.height() + 10,
+        #    text="Create DataBase",
+        #    tooltip="You can create the DataBase content if it doesn't exists!",
+        #    on_click=self._action_create_database_content,
+        #    parent=self
+        #)
+        self._button_add_person_at_event = Button(
+            x=self._left_margin + self._table_persons.x() + self._table_persons.width(),
+            y=100,
+            width=150,
+            text="Add For Events",
+            tooltip="Sign up the Persons for the Event.",
+            on_click=self._action_add_person_at_event,
+            parent=self
+        )
+        self._button_remove_person_at_event = Button(
+            x=self._button_add_person_at_event.x(),
+            y=self._button_add_person_at_event.y() + 85,
+            width=150,
+            text="Remove From Events",
+            tooltip="Remove Persons from Events.",
+            on_click=self._action_remove_persons_from_events,
+            parent=self
+        )
        
         # set window appearance
-        self.setWindowTitle('Calendar - PyQt5')
+        self.setWindowTitle('Calendar Manager')
         self.setGeometry(self.left, self.top, self.width, self.height)
 
         self.show()
@@ -186,7 +204,7 @@ class App(QMainWindow):
         self._table_persons.remove_selected()
 
     def _action_remove_persons_from_events(self):
-        pass
+        self._output_data_widget = Output_Data_Widget(self.db)
 
 
 if __name__ == '__main__':

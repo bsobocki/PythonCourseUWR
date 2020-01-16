@@ -54,10 +54,10 @@ class DataBase:
 
 
     def get_events(self):
-        return list(self.conn.conn.execute( self.event.select() ).fetchall())
+            return list(self.conn.conn.execute( self.event.select() ).fetchall())
 
     
-    def get_persons_at_events(self):
-        join = self.person_at_event.join( self.event, self.event.c.id == self.person_at_event.c.event_id )
-        query = join.join(self.person, self.person.c.id == join.c.person_id)
-        print(self.conn.conn.execute( query ))
+    def get_persons_at_event(self, _id):
+        query = self.person_at_event.join( self.event ).join( self.person ).select(self.event.c.id==_id)
+        rows = list(self.conn.conn.execute( query ).fetchall())
+        return rows

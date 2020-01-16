@@ -88,3 +88,39 @@ class DataBase_Manipulator_Delete(DataBase_Manipulator):
         else: return "There is nothing to delete."
 
         return "There is no event with given parameters."
+
+
+    def delete_person_from_event(self, val):
+        """ 
+            Deletes the value from the table 'person_at_event' 
+            \n@val is the value we want to delete given as dictionary\n: 
+                {'person_id':<person_id>, 'event_id':<event_id>} 
+        """
+        try:
+            if self.db.person is not None and self.db.event is not None and self.db.person_at_event is not None:
+                clause = self.db.person_at_event \
+                                .delete() \
+                                .where(person_id=val['person_id'], event_id=val['event_id'])
+
+                looking_for_person = self.db.person \
+                                            .select() \
+                                            .where(self.db.person.c.id==val['person_id'])
+
+                looking_for_event = self.db.event \
+                                            .select() \
+                                            .where(self.db.event.c.id==val['event_id'])
+
+                result = self.db.conn.conn.execute(clause)
+                person = list(self.db.conn.conn.execute(looking_for_person))
+                event = list(self.db.conn.conn.execute(looking_for_event))
+                
+                return 'Successfully removed:\n Person: ' + str(person[0][1]) + ' with id: ' + str(val['person_id']) + '\n From the event: ' + str(event[0][1])+ ' with id: ' + str(val['event_id'])
+                
+            else: 
+                return "Something gone wrong! \n" +  \
+                        "Person at event with parameters" + str(val_dict) + "were not added.\n" + \
+                        "May you should change parameters?\n"
+    
+        except Exception as err: 
+            return str(err) + "\nSorry, you cannot add this person to the event. \n" + \
+                    "There is no person with given 'person_id', there is no event with given 'event_id' or you do not give all needed data to add."

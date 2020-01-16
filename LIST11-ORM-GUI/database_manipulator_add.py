@@ -76,7 +76,7 @@ class Database_Manipulator_Add(DataBase_Manipulator):
                 {'person_id':<person_id>, 'event_id':<event_id>} 
         """
         try:
-            if self.db.person is not None:
+            if self.db.person is not None and self.db.event is not None and self.db.person_at_event is not None:
                 # create sqlalchemy.sql.expression.Insert object
                 clause = self.db.person_at_event \
                             .insert() \
@@ -113,18 +113,19 @@ class Database_Manipulator_Add(DataBase_Manipulator):
                 {'title':<title>, 'start_time':<start_time>, 'end_time':<end_time>}
         """
         try:
-            if 'title' in val_dict and 'start_time' in val_dict and 'end_time' in val_dict:
-                event_id = self._get_max_event_id()
+            if self.db.event is not None:
+                if 'title' in val_dict and 'start_time' in val_dict and 'end_time' in val_dict:
+                    event_id = self._get_max_event_id()
 
-                clause = self.db.event \
-                             .insert() \
-                             .values(id=event_id, title=val_dict['title'], start_time=val_dict['start_time'], end_time=val_dict['end_time'])
-                
-                result = self.db.conn.conn.execute(clause)
-                
-                return 'Successfully added event ' + val_dict['title'] + '.   '
-            else:
-                return 'Given arguments:' + str(val_dict) + 'are not a valid arguments to add a new event.'
+                    clause = self.db.event \
+                                .insert() \
+                                .values(id=event_id, title=val_dict['title'], start_time=val_dict['start_time'], end_time=val_dict['end_time'])
+                    
+                    result = self.db.conn.conn.execute(clause)
+                    
+                    return 'Successfully added event ' + val_dict['title'] + '.   '
+                else:
+                    return 'Given arguments:' + str(val_dict) + 'are not a valid arguments to add a new event.'
         except psycopg2.errors.UniqueViolation as err: 
             return "Event with id" + str(self.event_id) + 'is already exists.\n Please, change event id and try again.'
         except Exception as e: 
