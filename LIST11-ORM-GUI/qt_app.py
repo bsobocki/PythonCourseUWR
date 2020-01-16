@@ -9,6 +9,7 @@ from input_person_data_widget import Input_Person_Data_Widget
 from input_event_data_widget import Input_Event_Data_Widget
 from button import Button
 from table import Table
+from menu_bar import Menu_Bar
 
 
 class App(QMainWindow):
@@ -29,6 +30,15 @@ class App(QMainWindow):
         self._up_margin = 30
         self._left_margin = 10
 
+
+        # add Menu Bar
+        self._menu_bar = Menu_Bar(["File", "Edit"], self)
+        self._menu_bar.add_menu_button("File", "Exit", "Close Window", self.close)
+        self._menu_bar.add_menu_button("Edit", "Load Persons", "Load persons to the table.", self._table_udate_data_persons)
+        self._menu_bar.add_menu_button("Edit", "Load Events", "Load events to the table.", self._table_udate_data_events)
+        self._menu_bar.add_separator_to_menu("Edit")
+        self._menu_bar.add_menu_button("Edit", "Delete Persons", "Delete selected persons from the table.", self._action_delete_persons)
+        self._menu_bar.add_menu_button("Edit", "Delete Events", "Delete selected events from the table.", self._action_delete_events)
 
         # add buttons
         self._button_load_persons = Button(
@@ -121,16 +131,21 @@ class App(QMainWindow):
         pass
 
     def _action_delete_persons(self):
-        for item in self._table_person.selectedItems():
+        for item in self._table.selectedItems():
 
-            person_id = int( self._table_person.item( item.row(), 0).text() )
-            self._table_person.removeRow(item.row())
+            person_id = int( self._table.item( item.row(), 0).text() )
+            self._table.removeRow(item.row())
 
             QMessageBox.about(self, "Delete Person", self._db_manip_del.delete_person({"id":person_id}))
 
 
     def _action_delete_events(self):
-        pass
+        for item in self._table.selectedItems():
+
+            event_id = int( self._table.item( item.row(), 0).text() )
+            self._table.removeRow(item.row())
+
+            QMessageBox.about(self, "Delete Event", self._db_manip_del.delete_event({"id":event_id}))
 
     def _action_remove_persons_from_event(self):
         pass
