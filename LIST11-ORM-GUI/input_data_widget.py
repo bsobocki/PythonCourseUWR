@@ -38,7 +38,7 @@ class Input_Data_Widget(QWidget):
         self._init_UI()
 
         window_x, window_y = 300, 300
-        window_height = self._button.y() + self._button.height + 15
+        window_height = self._button.y() + self._button.height() + 15
         window_width = self._textboxes[0].x() + self._textboxes[0].width() + 10
         self.setWindowTitle(self._title)
         self.setGeometry(window_x, window_y, window_width, window_height)

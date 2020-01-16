@@ -50,11 +50,11 @@ class DataBase:
     
 
     def get_persons(self):
-        return self.conn.conn.execute( self.person.select() )
+        return list(self.conn.conn.execute( self.person.select() ).fetchall())
 
 
     def get_events(self):
-        return self.conn.conn.execute( self.event.select() )
+        return list(self.conn.conn.execute( self.event.select() ).fetchall())
 
     
     def get_persons_at_events(self):

@@ -41,9 +41,8 @@ class DataBase_Manipulator_Delete(DataBase_Manipulator):
 
                 result = self.db.conn.conn.execute(clause)
 
-                print('from now there is no person with',first_key,':',val[first_key])
+                return 'from now there is no person with'+ str(first_key) + ':' + str(val[first_key])
                 
-                return result
             else: print("There is no person with parameter:",first_key)
         else: print("There is nothing to delete.")
         
