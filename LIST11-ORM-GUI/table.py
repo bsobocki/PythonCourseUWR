@@ -2,10 +2,10 @@ from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
 
 
 class Table(QTableWidget):
-    def __init__(self, parent):
+    def __init__(self, x, y, parent):
         super().__init__(parent)        
-        self.resize(200, 200)
-        self.move(10,30)
+        self.resize(319, 200)
+        self.move(x,y)
 
         
     def _add_items(self, items):

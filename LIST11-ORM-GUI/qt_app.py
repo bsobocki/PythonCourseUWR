@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QMessageBox, QAction
 
 from db_manipulator import DataBase_Manipulator
 from database_manipulator_add import Database_Manipulator_Add
@@ -26,23 +26,42 @@ class App(QMainWindow):
         self.top = 180
         self.width = 640
         self.height = 480
+        self._up_margin = 30
+        self._left_margin = 10
+
 
         # add buttons
+        self._button_load_persons = Button(
+            x=self._left_margin,
+            y=self._up_margin,
+            text="Load Persons",
+            tooltip="Load persons to the table.",
+            on_click=self._table_udate_data_persons,
+            parent=self
+        )
         self._button_add_person = Button(
-            x=100, 
-            y=200, 
-            width=20,
-            height=20,
+            x=self._button_load_persons.x() + self._button_load_persons.width(), 
+            y=self._up_margin, 
+            width=30,
             text='+', 
-            tooltip='You can add a new person to the DataBase!', 
+            tooltip='You can add a new Person to the DataBase!', 
             on_click=self._action_add_person, 
             parent=self
         )
+        self._button_load_events = Button(
+            x=self._button_add_person.x() + self._button_add_person.width() + 20,
+            y=self._up_margin,
+            text="Load Events",
+            tooltip="Load persons to the table.",
+            on_click=self._table_udate_data_events,
+            parent=self
+        )
         self._button_add_event = Button(
-            x=220,
-            y=200,
-            text="+e",
-            tooltip="You can add a new Person to the Database!",
+            x=self._button_load_events.x() + self._button_load_events.width(),
+            y=self._up_margin,
+            width=30,
+            text="+",
+            tooltip="You can add a new Event to the Database!",
             on_click=self._action_add_event,
             parent=self
         )
@@ -63,8 +82,10 @@ class App(QMainWindow):
             parent=self
         )
 
-        # add tables
-        self._table = Table(self)
+        # add table
+        table_x = self._left_margin
+        table_y = self._up_margin + self._button_load_persons.height()
+        self._table = Table(x=table_x, y=table_y, parent=self)
        
         # set window appearance
         self.setWindowTitle('Calendar - PyQt5')
@@ -73,14 +94,23 @@ class App(QMainWindow):
         self.show()
 
 
+    def _table_udate_data_persons(self):
+        self._table.update_data(["id", "name", "email"], self.db.get_persons())
+
+
+    def _table_udate_data_events(self):
+        self._table.update_data(["id", "title", "start time", "end time"], self.db.get_events())
+
+
+
     def _action_add_person(self):
         self._person_data_widget = Input_Person_Data_Widget(self._db_manip_add)
-        self._table.update_data(["id", "name", "email"], self.db.get_persons())
+        self._table_udate_data_persons()
         
 
     def _action_add_event(self):
         self._event_data_widget = Input_Event_Data_Widget(self._db_manip_add)
-        self._table.update_data(["id", "title", "start time", "end time"], self.db.get_events())
+        self._table_udate_data_events()
 
 
     def _action_create_database_content(self):
