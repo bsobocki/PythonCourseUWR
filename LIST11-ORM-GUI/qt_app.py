@@ -131,21 +131,15 @@ class App(QMainWindow):
         pass
 
     def _action_delete_persons(self):
-        for item in self._table.selectedItems():
-
-            person_id = int( self._table.item( item.row(), 0).text() )
-            self._table.removeRow(item.row())
-
-            QMessageBox.about(self, "Delete Person", self._db_manip_del.delete_person({"id":person_id}))
+        for person_id in self._table.remove_selected_get_ids():
+            message = self._db_manip_del.delete_person({"id":person_id})
+            QMessageBox.about( self, "Delete Person", message )
 
 
     def _action_delete_events(self):
-        for item in self._table.selectedItems():
-
-            event_id = int( self._table.item( item.row(), 0).text() )
-            self._table.removeRow(item.row())
-
-            QMessageBox.about(self, "Delete Event", self._db_manip_del.delete_event({"id":event_id}))
+        for event_id in self._table.remove_selected_get_ids():
+            message = self._db_manip_del.delete_event({"id":event_id})
+            QMessageBox.about( self, "Delete Event", message )
 
     def _action_remove_persons_from_event(self):
         pass

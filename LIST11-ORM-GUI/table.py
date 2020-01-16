@@ -16,9 +16,16 @@ class Table(QTableWidget):
                 self.setItem( j, i, QTableWidgetItem(str(items[j][i])) )
 
 
+    def remove_selected_get_ids(self):
+        id_vals = []
+        for item in self.selectedItems():
+            id_vals.append( int(self.item( item.row(), 0).text()) )
+            self.removeRow(item.row())
+        return id_vals
+
+
     def _remove_data(self):
         for i in range(0, self.rowCount()): self.removeRow(i)
-
 
 
     def update_data(self, column_names, items):
