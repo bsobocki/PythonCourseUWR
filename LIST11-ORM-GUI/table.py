@@ -2,9 +2,9 @@ from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
 
 
 class Table(QTableWidget):
-    def __init__(self, x, y, parent):
+    def __init__(self, x, y, width, parent):
         super().__init__(parent)        
-        self.resize(319, 200)
+        self.resize(width, 200)
         self.move(x,y)
 
         
