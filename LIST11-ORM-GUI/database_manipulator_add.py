@@ -94,7 +94,7 @@ class Database_Manipulator_Add(DataBase_Manipulator):
                 person = list(self.db.conn.conn.execute(looking_for_person))
                 event = list(self.db.conn.conn.execute(looking_for_event))
                 
-                return 'Successfully added person ' + str(person[0][1]) + ' with id: ' + str(val['person_id']) + ' at event ' + str(event[0][1])+ ' with id: ' + str(val['event_id'])
+                return 'Successfully added:\n Person: ' + str(person[0][1]) + ' with id: ' + str(val['person_id']) + '\n For event: ' + str(event[0][1])+ ' with id: ' + str(val['event_id'])
                 
             else: 
                 return "Something gone wrong! \n" +  \
@@ -102,7 +102,7 @@ class Database_Manipulator_Add(DataBase_Manipulator):
                         "May you should change parameters?\n"
     
         except Exception as err: 
-            return "Sorry, you cannot add this person to the event. \n" + \
+            return str(err) + "\nSorry, you cannot add this person to the event. \n" + \
                     "There is no person with given 'person_id', there is no event with given 'event_id' or you do not give all needed data to add."
 
 

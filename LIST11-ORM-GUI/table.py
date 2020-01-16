@@ -16,11 +16,15 @@ class Table(QTableWidget):
                 self.setItem( j, i, QTableWidgetItem(str(items[j][i])) )
 
 
-    def remove_selected_get_ids(self):
+    def remove_selected(self):
+        for item in self.selectedItems():
+            self.removeRow(item.row())
+
+
+    def get_ids_of_selected(self):
         id_vals = []
         for item in self.selectedItems():
             id_vals.append( int(self.item( item.row(), 0).text()) )
-            self.removeRow(item.row())
         return id_vals
 
 

@@ -25,7 +25,7 @@ class App(QMainWindow):
     def _init_UI(self):
         self.left = 300
         self.top = 180
-        self.width = 730
+        self.width = 750
         self.height = 480
         self._up_margin = 30
         self._left_margin = 10
@@ -53,6 +53,24 @@ class App(QMainWindow):
             text="Create DataBase",
             tooltip="You can create the DataBase content if it doesn't exists!",
             on_click=self._action_create_database_content,
+            parent=self
+        )
+        self._button_add_person_at_event = Button(
+            x=self._left_margin,
+            y=350,
+            width=150,
+            text="Add For Events",
+            tooltip="Sign up the Persons for the Event.",
+            on_click=self._action_add_person_at_event,
+            parent=self
+        )
+        self._button_remove_person_at_event = Button(
+            x=self._left_margin + 185,
+            y=350,
+            width=150,
+            text="Remove From Events",
+            tooltip="Remove Persons from Events.",
+            on_click=self._action_remove_persons_from_events,
             parent=self
         )
 
@@ -86,7 +104,7 @@ class App(QMainWindow):
         # add table
         table_x = self._left_margin
         table_y = self._up_margin + self._button_load_persons.height()
-        self._table_persons = Table(x=table_x, y=table_y, width=319, parent=self)
+        self._table_persons = Table(x=table_x, y=table_y, width=330, parent=self)
 
         # EVENTS
         # add buttons
@@ -110,7 +128,7 @@ class App(QMainWindow):
         # add table
         table_x = self._button_load_events.x()
         table_y = self._up_margin + self._button_load_persons.height()
-        self._table_events = Table(x=table_x, y=table_y, width=400, parent=self)
+        self._table_events = Table(x=table_x, y=table_y, width=390, parent=self)
        
         # set window appearance
         self.setWindowTitle('Calendar - PyQt5')
@@ -137,7 +155,16 @@ class App(QMainWindow):
         self._action_table_update_data_events()
 
     def _action_add_person_at_event(self):
-        pass
+        persons_ids = self._table_persons.get_ids_of_selected()
+        events_ids = self._table_events.get_ids_of_selected()
+        if len(persons_ids) == 0 : 
+                QMessageBox.about(self, "Create DataBase Content", "Select at least one person.")
+        if len(events_ids) == 0 : 
+                QMessageBox.about(self, "Create DataBase Content", "Select at least one event.")
+        for person_id in persons_ids:
+            for event_id in events_ids:
+                message = self._db_manip_add.add_person_at_event({"person_id":person_id, "event_id":event_id})
+                QMessageBox.about(self, "Create DataBase Content", message)
 
 
     def _action_create_database_content(self):
@@ -146,17 +173,19 @@ class App(QMainWindow):
 
 
     def _action_delete_persons(self):
-        for person_id in self._table_persons.remove_selected_get_ids():
+        for person_id in self._table_persons.get_ids_of_selected():
             message = self._db_manip_del.delete_person({"id":person_id})
             QMessageBox.about( self, "Delete Person", message )
+        self._table_persons.remove_selected()
 
 
     def _action_delete_events(self):
-        for event_id in self._table_events.remove_selected_get_ids():
+        for event_id in self._table_events.get_ids_of_selected():
             message = self._db_manip_del.delete_event({"id":event_id})
             QMessageBox.about( self, "Delete Event", message )
+        self._table_persons.remove_selected()
 
-    def _action_remove_persons_from_event(self):
+    def _action_remove_persons_from_events(self):
         pass
 
 

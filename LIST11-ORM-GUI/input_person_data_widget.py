@@ -33,4 +33,5 @@ class Input_Person_Data_Widget(Input_Data_Widget):
             "name": self._textboxes[0].text(),
             "email": self._textboxes[1].text()
         })
+        for textbox in self._textboxes: textbox.setText("")
         QMessageBox.about(self, "Adding Person To The Database", str(result))
